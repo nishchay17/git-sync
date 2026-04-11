@@ -1,0 +1,42 @@
+# Runs in this repository: checks out the default branch, builds, syncs empty commits, pushes.
+# Set Actions variable GH_SYNC_SOURCE_USERNAME (the GitHub login to mirror).
+# Set GIT_AUTHOR_NAME / GIT_AUTHOR_EMAIL (repo variables) so commits count on your profile.
+name: Sync activity
+
+on:
+  schedule:
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: sync-activity
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    if: ${{ vars.GH_SYNC_SOURCE_USERNAME != '' }}
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+
+      - name: Sync contributions into this repo
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_SYNC_SOURCE_USERNAME: ${{ vars.GH_SYNC_SOURCE_USERNAME }}
+          GH_SYNC_TARGET_REPO: ${{ github.repository }}
+          GH_SYNC_LOCAL_PATH: ${{ github.workspace }}
+          GIT_AUTHOR_NAME: ${{ vars.GIT_AUTHOR_NAME }}
+          GIT_AUTHOR_EMAIL: ${{ vars.GIT_AUTHOR_EMAIL }}
+        run: node dist/cli/index.js sync

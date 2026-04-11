@@ -1,0 +1,8 @@
+{
+  "sourceUsername": "your-work-github-login",
+  "targetRepo": "your-personal-user/activity-mirror",
+  "localRepoPath": "data/mirror-repo",
+  "maxCommitsPerDay": 20,
+  "gitName": "Your Name",
+  "gitEmail": "your-email@users.noreply.github.com"
+}

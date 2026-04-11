@@ -1,0 +1,34 @@
+{
+  "name": "github-activity-sync",
+  "version": "1.0.0",
+  "description": "Sync GitHub contribution activity to a personal repo via empty commits (privacy-preserving)",
+  "type": "module",
+  "bin": {
+    "gh-sync": "./dist/cli/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/cli/index.js",
+    "dev": "tsx src/cli/index.ts",
+    "sync": "node dist/cli/index.js sync"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "github",
+    "contributions",
+    "sync",
+    "cli"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^12.1.0",
+    "simple-git": "^3.27.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
