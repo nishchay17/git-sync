@@ -81,19 +81,23 @@ Global install (optional): `npm link` from this repo, then run `gh-sync sync`.
 3. **Commit** — For each needed commit, `git commit --allow-empty` with `GIT_AUTHOR_DATE` / `GIT_COMMITTER_DATE` randomized within that day.
 4. **Push** — Pushes to `origin` (HTTPS with optional embedded token, or your configured credentials).
 
-## Automation (cron in this repo)
+## Automation (GitHub Actions)
 
-Workflow [`.github/workflows/sync-activity.yml`](.github/workflows/sync-activity.yml) runs on a schedule (and manually). It checks out **this** repository with **full history** (`fetch-depth: 0` so dedupe matches existing commits), runs `npm ci` / `npm run build`, then `node dist/cli/index.js sync` with:
+**Daily sync** — [`.github/workflows/sync-activity.yml`](.github/workflows/sync-activity.yml): schedule (`cron`) and optional **Run workflow**. Runs `node dist/cli/index.js sync` (current UTC year only).
+
+**Manual backfill (last two UTC years)** — [`.github/workflows/backfill-recent-years.yml`](.github/workflows/backfill-recent-years.yml): **workflow_dispatch** only (not on cron). Runs `backfill` for last year and this year.
+
+Both check out **this** repo with **full history** (`fetch-depth: 0`), then `npm ci` / `npm run build`, with:
 
 | Env | Value |
 |-----|--------|
-| `GH_SYNC_LOCAL_PATH` | `${{ github.workspace }}` — the checked-out repo (no separate clone) |
-| `GH_SYNC_TARGET_REPO` | `${{ github.repository }}` — same repo |
+| `GH_SYNC_LOCAL_PATH` | `${{ github.workspace }}` |
+| `GH_SYNC_TARGET_REPO` | `${{ github.repository }}` |
 | `GITHUB_TOKEN` | Default Actions token (push to this repo) |
 | `GH_SYNC_SOURCE_USERNAME` | **Repository variable** — login to mirror |
 | `GIT_AUTHOR_NAME` / `GIT_AUTHOR_EMAIL` | **Repository variables** — should match your GitHub profile email so contributions count |
 
-The job is skipped until **`GH_SYNC_SOURCE_USERNAME`** is set (empty variable = no-op), so forks stay quiet until configured.
+Jobs are skipped until **`GH_SYNC_SOURCE_USERNAME`** is set.
 
 ## Legal and policy
 

@@ -1,19 +1,16 @@
-# Daily (or manual) sync for the current UTC year only — not tied to backfill.
-# Set Actions variable GH_SYNC_SOURCE_USERNAME (the GitHub login to mirror).
-# Set GIT_AUTHOR_NAME / GIT_AUTHOR_EMAIL (repo variables) so commits count on your profile.
-name: Sync activity
+# Manual only: backfills the previous and current UTC calendar years (two `backfill` runs).
+# Does not run on the daily cron — use when you need historical data without slowing routine syncs.
+name: Backfill recent years
 
 on:
-  schedule:
-    - cron: "0 2 * * *"
   workflow_dispatch:
 
 concurrency:
-  group: sync-activity
+  group: backfill-recent-years
   cancel-in-progress: false
 
 jobs:
-  sync:
+  backfill:
     runs-on: ubuntu-latest
     if: ${{ vars.GH_SYNC_SOURCE_USERNAME != '' }}
     permissions:
@@ -31,7 +28,7 @@ jobs:
       - run: npm ci
       - run: npm run build
 
-      - name: Sync contributions into this repo
+      - name: Backfill previous and current UTC calendar years
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_SYNC_SOURCE_USERNAME: ${{ vars.GH_SYNC_SOURCE_USERNAME }}
@@ -39,4 +36,8 @@ jobs:
           GH_SYNC_LOCAL_PATH: ${{ github.workspace }}
           GIT_AUTHOR_NAME: ${{ vars.GIT_AUTHOR_NAME }}
           GIT_AUTHOR_EMAIL: ${{ vars.GIT_AUTHOR_EMAIL }}
-        run: node dist/cli/index.js sync
+        run: |
+          Y=$(date -u +%Y)
+          PY=$((Y - 1))
+          node dist/cli/index.js backfill --year "$PY"
+          node dist/cli/index.js backfill --year "$Y"
