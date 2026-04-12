@@ -2,6 +2,10 @@
 
 CLI tool that reads a **source** GitHub user’s public contribution calendar (for example your work account) and replays that activity on a **personal** repository using **empty commits** only—no source code is copied.
 
+> Currently syncing with my work GitHub account [nishchay-17](https://github.com/nishchay-17)
+
+---
+
 ## Requirements
 
 - Node.js 18+
